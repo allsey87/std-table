@@ -65,6 +65,7 @@ public:
 
          iterator& operator=(const iterator& iter) {
             m_index = iter.m_index;
+            return *this;
          }
         
          bool operator==(const iterator& iter) const {
@@ -100,6 +101,70 @@ public:
       }
       
       row(table<T>& table, unsigned int index) :
+         m_table(table),
+         m_index(index) {}
+      
+      /* contents! */
+      //bool operator==(const row&) const {}  
+      
+   private:
+      table<T>& m_table;
+      unsigned int m_index;
+   };
+
+   class column {
+   public:
+      class iterator {
+      public:
+         iterator(column& _col, unsigned int _index = 0) :
+            m_col(_col),
+            m_index(_index) {}
+         
+         iterator(const iterator& iter) :
+            m_col(iter.m_col),
+            m_index(iter.m_index) {}
+         
+         ~iterator() {}
+
+         iterator& operator=(const iterator& iter) {
+            m_index = iter.m_index;
+            return *this;
+         }
+        
+         bool operator==(const iterator& iter) const {
+            return (m_index == iter.m_index);
+         }
+        
+         bool operator!=(const iterator& iter) const {
+            return (m_index != iter.m_index);
+         }
+         
+         iterator& operator++() {
+            ++m_index;
+            return *this;
+         }
+         
+         value_type& operator*() {
+            typename Container::iterator it = std::begin(m_col.m_table.c);
+            std::advance(it, m_col.m_table.m_cols * m_index + m_col.m_index);
+            return *it;
+         }
+        
+      private:
+         column& m_col;
+         // to be changed to the underlying iterator type
+         unsigned int m_index;
+      };
+      
+      iterator begin() {
+         return iterator(*this);
+      }
+      
+      iterator end() {
+         return iterator(*this,m_table.m_rows);
+      }
+      
+      column(table<T>& table, unsigned int index) :
          m_table(table),
          m_index(index) {}
       
