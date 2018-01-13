@@ -36,60 +36,47 @@ public:
       return std::end(c);
    }
    
-   /*
-   struct row_view_range {
-      row_view_iterator m_begin;
-      row_view_iterator m_end;     
-      auto begin() {
-         return m_begin;
-      };
-      auto end() {
-         return m_end;  
-      };
-   };
-   */
-   
    class row {
    public:
       class iterator {
       public:
          iterator(row& _row, unsigned int _index = 0) :
-            m_row(_row),
-            m_index(_index) {}
+            m_row(_row) {
+            m_iter = std::begin(m_row.m_table.c);
+            std::advance(m_iter, m_row.m_index * m_row.m_table.m_cols + _index);
+         }
          
          iterator(const iterator& iter) :
             m_row(iter.m_row),
-            m_index(iter.m_index) {}
+            m_iter(iter.m_iter) {}
          
          ~iterator() {}
 
          iterator& operator=(const iterator& iter) {
-            m_index = iter.m_index;
+            m_iter = iter.m_iter;
             return *this;
          }
         
          bool operator==(const iterator& iter) const {
-            return (m_index == iter.m_index);
+            return (m_iter == iter.m_iter);
          }
         
          bool operator!=(const iterator& iter) const {
-            return (m_index != iter.m_index);
+            return (m_iter != iter.m_iter);
          }
          
          iterator& operator++() {
-            ++m_index;
+            m_iter++;
             return *this;
          }
          
          value_type& operator*() {
-            typename Container::iterator it = std::begin(m_row.m_table.c);
-            std::advance(it, m_row.m_table.m_cols * m_row.m_index + m_index);
-            return *it;
+            return *m_iter;
          }
         
       private:
          row& m_row;
-         unsigned int m_index;
+         typename Container::iterator m_iter;
       };
       
       iterator begin() {
@@ -103,10 +90,7 @@ public:
       row(table<T>& table, unsigned int index) :
          m_table(table),
          m_index(index) {}
-      
-      /* contents! */
-      //bool operator==(const row&) const {}  
-      
+  
    private:
       table<T>& m_table;
       unsigned int m_index;
@@ -117,43 +101,42 @@ public:
       class iterator {
       public:
          iterator(column& _col, unsigned int _index = 0) :
-            m_col(_col),
-            m_index(_index) {}
+            m_col(_col) {
+            m_iter = std::begin(m_col.m_table.c);
+            std::advance(m_iter, m_col.m_index + m_col.m_table.m_cols * _index);
+         }
          
-         iterator(const iterator& iter) :
-            m_col(iter.m_col),
-            m_index(iter.m_index) {}
+         iterator(const iterator& _iter) :
+            m_col(_iter.m_col),
+            m_iter(_iter.m_iter) {}
          
          ~iterator() {}
 
-         iterator& operator=(const iterator& iter) {
-            m_index = iter.m_index;
+         iterator& operator=(const iterator& _iter) {
+            m_iter = _iter.m_iter;
             return *this;
          }
         
-         bool operator==(const iterator& iter) const {
-            return (m_index == iter.m_index);
+         bool operator==(const iterator& _iter) const {
+            return (m_iter == _iter.m_iter);
          }
         
-         bool operator!=(const iterator& iter) const {
-            return (m_index != iter.m_index);
+         bool operator!=(const iterator& _iter) const {
+            return (m_iter != _iter.m_iter);
          }
          
          iterator& operator++() {
-            ++m_index;
+            std::advance(m_iter, m_col.m_table.m_cols);
             return *this;
          }
          
          value_type& operator*() {
-            typename Container::iterator it = std::begin(m_col.m_table.c);
-            std::advance(it, m_col.m_table.m_cols * m_index + m_col.m_index);
-            return *it;
+            return *m_iter;
          }
         
       private:
          column& m_col;
-         // to be changed to the underlying iterator type
-         unsigned int m_index;
+         typename Container::iterator m_iter;
       };
       
       iterator begin() {
@@ -166,10 +149,7 @@ public:
       
       column(table<T>& table, unsigned int index) :
          m_table(table),
-         m_index(index) {}
-      
-      /* contents! */
-      //bool operator==(const row&) const {}  
+         m_index(index) {} 
       
    private:
       table<T>& m_table;

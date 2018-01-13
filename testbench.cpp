@@ -12,7 +12,7 @@ int main(int argc, char* args[]) {
       10,11,12,
    });
       
-   table<double>::row myRow(my_table, 0);  
+   table<double>::row myRow(my_table, 3);  
    for(double f : myRow) {
       std::cout << f << ", ";
    }
