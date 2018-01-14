@@ -15,16 +15,16 @@ public:
    
 public:
    // Constructors
-   table(unsigned int rows, unsigned int cols) :
-      m_rows(rows),
-      m_cols(cols) {
-      c.resize(rows * cols);
+   table(unsigned int _rows, unsigned int _cols) :
+      m_rows(_rows),
+      m_cols(_cols) {
+      c.resize(_rows * _cols);
    }
    
-   table(unsigned int rows, unsigned int cols, std::initializer_list<value_type> values) :
-      m_rows(rows),
-      m_cols(cols) {
-      c.assign(values);
+   table(unsigned int _rows, unsigned int _cols, std::initializer_list<value_type> _values) :
+      m_rows(_rows),
+      m_cols(_cols) {
+      c.assign(_values);
    }
    
    // Element-wise access
@@ -36,7 +36,7 @@ public:
       return std::end(c);
    }
    
-   class row {
+   class row { 
    public:
       class iterator {
       public:
@@ -46,23 +46,23 @@ public:
             std::advance(m_iter, m_row.m_index * m_row.m_table.m_cols + _index);
          }
          
-         iterator(const iterator& iter) :
-            m_row(iter.m_row),
-            m_iter(iter.m_iter) {}
+         iterator(const iterator& _iter) :
+            m_row(_iter.m_row),
+            m_iter(_iter.m_iter) {}
          
          ~iterator() {}
 
-         iterator& operator=(const iterator& iter) {
-            m_iter = iter.m_iter;
+         iterator& operator=(const iterator& _iter) {
+            m_iter = _iter.m_iter;
             return *this;
          }
         
-         bool operator==(const iterator& iter) const {
-            return (m_iter == iter.m_iter);
+         bool operator==(const iterator& _iter) const {
+            return (m_iter == _iter.m_iter);
          }
         
-         bool operator!=(const iterator& iter) const {
-            return (m_iter != iter.m_iter);
+         bool operator!=(const iterator& _iter) const {
+            return (m_iter != _iter.m_iter);
          }
          
          iterator& operator++() {
@@ -84,17 +84,79 @@ public:
       }
       
       iterator end() {
-         return iterator(*this,m_table.m_cols);
+         return iterator(*this, m_table.m_cols);
+      }
+
+      bool operator==(const row& _row) const {
+         return (m_index == _row.m_index);
       }
       
-      row(table<T>& table, unsigned int index) :
-         m_table(table),
-         m_index(index) {}
-  
-   private:
-      table<T>& m_table;
+      bool operator!=(const row& _row) const {
+         return (m_index != _row.m_index);
+      }
+      
+      row(table<T, Container>& _table, unsigned int _index) :
+         m_table(_table),
+         m_index(_index) {}
+
+      // hack
+   public:
+      table<T, Container>& m_table;
       unsigned int m_index;
    };
+
+   class row_iterator {
+   public:
+      row_iterator(table<T, Container>& _table, unsigned int _index) :
+         m_row(_table, _index) {}
+      
+      row_iterator(const row_iterator& _iter) :
+         m_row(_iter.m_row) {}
+      
+      row_iterator& operator=(const row_iterator& _iter) {
+         m_row = _iter.m_row;
+         return *this;
+      }
+        
+      bool operator==(const row_iterator& _iter) const {
+         return (m_row == _iter.m_row);
+      }
+      
+      bool operator!=(const row_iterator& _iter) const {
+         return (m_row != _iter.m_row);
+      }
+         
+      row_iterator& operator++() {
+         m_row.m_index++;
+         return *this;
+      }
+         
+      row& operator*() {
+         return m_row;
+      }
+      
+   private:
+      row m_row;
+   };
+
+   struct row_iterators {
+      row_iterators(table<T, Container>& _table) :
+         m_begin(_table, 0),
+         m_end(_table, _table.m_rows) {}
+         
+      row_iterator begin() {
+         return m_begin;
+      }   
+      row_iterator end() {
+         return m_end;
+      }
+      row_iterator m_begin;
+      row_iterator m_end;
+   };
+   
+   auto rows() {
+      return row_iterators(*this);  
+   }
 
    class column {
    public:
@@ -105,7 +167,7 @@ public:
             m_iter = std::begin(m_col.m_table.c);
             std::advance(m_iter, m_col.m_index + m_col.m_table.m_cols * _index);
          }
-         
+
          iterator(const iterator& _iter) :
             m_col(_iter.m_col),
             m_iter(_iter.m_iter) {}
@@ -152,7 +214,7 @@ public:
          m_index(index) {} 
       
    private:
-      table<T>& m_table;
+      table<T, Container>& m_table;
       unsigned int m_index;
    };
   

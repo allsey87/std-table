@@ -11,22 +11,25 @@ int main(int argc, char* args[]) {
       7,8,9,
       10,11,12,
    });
-      
-   table<double>::row myRow(my_table, 3);  
-   for(double f : myRow) {
-      std::cout << f << ", ";
-   }
-   std::cout << std::endl;
 
+   /*
    table<double>::column myColumn(my_table, 2);
    for(double f : myColumn) {
       std::cout << f << ", ";
    }
    std::cout << std::endl;
-
+   */
+   
    //my_table.insert_column(column_iterator, {4,7,10,13});
-   //my_table.insert_row(row_iterator, {13,14,15});
-
+   //my_table.insert(my_table.rows().begin(), {13,14,15});
+   
+   for(table<double>::row myRow : my_table.rows()) {
+      for(double f : myRow) {
+         std::cout << f << ", ";
+      }
+      std::cout << std::endl;
+   }
+   
    return 0;
 }
 
