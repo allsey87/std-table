@@ -1,8 +1,8 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-
 #include <list>
+#include <exception>
 
 template <class T, class Container = std::list<T> >
 class table {
@@ -134,11 +134,22 @@ public:
       row& operator*() {
          return m_row;
       }
-      
-   private:
+      // hack
+   public:
       row m_row;
    };
 
+   void insert(row_iterator _position, std::initializer_list<value_type> _values) {
+      if(_values.size() > m_cols) {
+         throw std::bad_array_new_length();
+      }
+      m_rows++;
+      typename Container::iterator iter = std::begin(c); 
+      std::advance(iter, _position.m_row.m_index * m_cols);
+      c.insert(iter, _values);
+      // todo return row_iterator
+   }
+   
    struct row_iterators {
       row_iterators(table<T, Container>& _table) :
          m_begin(_table, 0),

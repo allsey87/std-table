@@ -21,7 +21,9 @@ int main(int argc, char* args[]) {
    */
    
    //my_table.insert_column(column_iterator, {4,7,10,13});
-   //my_table.insert(my_table.rows().begin(), {13,14,15});
+   table<double>::row_iterator itRow = my_table.rows().begin();
+   ++itRow; ++itRow; ++itRow;
+   my_table.insert(itRow, {13,14,15});
    
    for(table<double>::row myRow : my_table.rows()) {
       for(double f : myRow) {
@@ -29,7 +31,16 @@ int main(int argc, char* args[]) {
       }
       std::cout << std::endl;
    }
-   
+   /*
+   for(table<double>::row_iterator itRow = my_table.rows().begin();
+       itRow != my_table.rows().end();
+       ++itRow) {
+      for(double f : *itRow) {
+         std::cout << f << ", ";
+      }
+      std::cout << std::endl;
+   }  
+   */
    return 0;
 }
 
