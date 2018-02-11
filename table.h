@@ -90,12 +90,33 @@ namespace std {
             return iterator(*this, m_table.m_cols);
          }
 
+			//row& operator=(row&& _row)	
+
+			row& operator=(row& _row) {
+				for(iterator it_src = _row.begin(), iterator it_dst = this->begin();
+					 it_src != _row.end() && it_dst = this->end();
+					 ++it_src, ++it_dst) {
+					*it_dst = *it_src;
+				}	 
+				return *this;
+         }
+
          bool operator==(const row& _row) const {
             return (m_index == _row.m_index);
          }
          
          bool operator!=(const row& _row) const {
             return (m_index != _row.m_index);
+         }
+
+         row& operator++() {
+            m_index++;
+            return *this;
+         }
+	
+			/* dereferencing a row has no effect */
+			row& operator*() {
+            return *this;
          }
          
          row(table<T, Container>& _table, unsigned int _index) :
@@ -108,47 +129,13 @@ namespace std {
          unsigned int m_index;
       };
 
-      class row_iterator {
-      public:
-         row_iterator(table<T, Container>& _table, unsigned int _index) :
-            m_row(_table, _index) {}
-         
-         row_iterator(const row_iterator& _iter) :
-            m_row(_iter.m_row) {}
-         
-         row_iterator& operator=(const row_iterator& _iter) {
-            m_row = _iter.m_row;
-            return *this;
-         }
-           
-         bool operator==(const row_iterator& _iter) const {
-            return (m_row == _iter.m_row);
-         }
-         
-         bool operator!=(const row_iterator& _iter) const {
-            return (m_row != _iter.m_row);
-         }
-            
-         row_iterator& operator++() {
-            m_row.m_index++;
-            return *this;
-         }
-            
-         row& operator*() {
-            return m_row;
-         }
-         // hack
-      public:
-         row m_row;
-      };
-
-      void insert(row_iterator _position, initializer_list<value_type> _values) {
+      void insert(row _position, initializer_list<value_type> _values) {
          if(_values.size() > m_cols) {
             throw bad_array_new_length();
          }
          m_rows++;
          typename Container::iterator iter = c.begin(); 
-         advance(iter, _position.m_row.m_index * m_cols);
+         advance(iter, _position.m_index * m_cols);
          c.insert(iter, _values);
          // todo return row_iterator
       }
@@ -158,14 +145,14 @@ namespace std {
             m_begin(_table, 0),
             m_end(_table, _table.m_rows) {}
             
-         row_iterator begin() {
+         row begin() {
             return m_begin;
          }   
-         row_iterator end() {
+         row end() {
             return m_end;
          }
-         row_iterator m_begin;
-         row_iterator m_end;
+         row m_begin;
+         row m_end;
       };
       
       auto rows() {
